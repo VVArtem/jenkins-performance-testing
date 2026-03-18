@@ -64,6 +64,35 @@ pipeline {
                 }
             }
         }
+
+        stage('Gatling Test') {
+            when { expression { return params.RUN_GATLING } }
+            environment {
+                JAVA_HOME = '/usr/lib/jvm/java-1.17.0-openjdk-amd64'
+                PATH = "${JAVA_HOME}/bin:${env.PATH}"
+            }
+            steps {
+                dir('gatling') {
+                    sh """
+                        mvn clean gatling:test \
+                            -Dgatling.simulationClass=simulation.Simulation1 \
+                            -Dusers=${params.USERS} \
+                            -Dduration=${params.DURATION} \
+                            -DappBaseUrl=${env.BASE_URL} \
+                            -DloadType=closed
+                    """
+                }
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'gatling/target/gatling',
+                        reportFiles: '**/index.html',
+                        reportName: 'Gatling Report'
+                    ])
         
         stage('Lighthouse Test') {
             when { expression { return params.RUN_LIGHTHOUSE } }

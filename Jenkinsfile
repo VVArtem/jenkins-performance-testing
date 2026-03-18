@@ -42,7 +42,7 @@ pipeline {
                             rm -rf results/* reports/*
                             mkdir -p results reports
                 
-                            entrypoint.sh -n \
+                            jmeter -n \
                                 -t scripts/Essentials.jmx \
                                 -l results/${jmeterReportName}.jtl \
                                 -Jusers=${params.USERS} \

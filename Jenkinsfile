@@ -72,10 +72,6 @@ pipeline {
 
         stage('Gatling Test') {
             when { expression { return params.RUN_GATLING } }
-            environment {
-                JAVA_HOME = '/usr/lib/jvm/java-1.17.0-openjdk-amd64'
-                PATH = "${JAVA_HOME}/bin:${env.PATH}"
-            }
             steps {
                 dir('gatling') {
                     sh """

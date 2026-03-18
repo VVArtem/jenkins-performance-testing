@@ -26,13 +26,16 @@ pipeline {
         
         REPORT_NAME = "build-${env.BUILD_NUMBER}"
 
-        BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}:${env.TARGET_PORT}"
+        BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}"
+
+        _JAVA_OPTIONS = "-Djava.net.preferIPv4Stack=true"
     }
 
     stages {
         stage('JMeter Test') {
             when { expression { return params.RUN_JMETER } }
             steps {
+                sh "java -e 'System.out.println(java.net.InetAddress.getByName(\"wp\"));'"
                 dir('jmeter') {
                     script {
                         def jmeterReportName = "results_${env.REPORT_NAME}"

@@ -13,14 +13,14 @@ pipeline {
 
     environment {
         TARGET_PROTOCOL = "http"
-        TARGET_HOST     = "wp"
+        TARGET_HOST     = "127.0.0.1"
         TARGET_PORT     = "80"
 
         BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}/"
         
         REPORT_NAME = "build-${env.BUILD_NUMBER}"
 
-        DOCKER_NETWORK = "pte-network"
+        DOCKER_NETWORK = "host"
     }
 
     stages {

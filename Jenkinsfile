@@ -19,7 +19,7 @@ pipeline {
 
     environment {
         TARGET_PROTOCOL = "http"
-        TARGET_HOST     = "172.19.0.3"
+        TARGET_HOST     = "wp"
         TARGET_PORT     = "80"
 
         JM_PATH = "jmeter"
@@ -30,6 +30,13 @@ pipeline {
     }
 
     stages {
+        stage('Pre-flight Check') {
+            steps {
+                sh "ping -c 2 ${env.TARGET_HOST}"
+                sh "curl -I ${env.BASE_URL}"
+            }
+        }
+
         stage('JMeter Test') {
             when { expression { return params.RUN_JMETER } }
             steps {

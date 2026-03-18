@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        dockerfile {
+            filename 'Dockerfile'
+
+            args '--shm-size=2g --add-host=host.docker.internal:host-gateway'
+        }
+    }
     
     parameters {
         booleanParam(name: 'RUN_JMETER', defaultValue: true, description: 'Run JMeter test?')
@@ -13,7 +19,7 @@ pipeline {
 
     environment {
         TARGET_PROTOCOL = "http"
-        TARGET_HOST     = "127.0.0.1"
+        TARGET_HOST     = "host.docker.internal"
         TARGET_PORT     = "80"
         JM_PATH = "/opt/apache-jmeter-5.6.3/bin/jmeter"
         JAVA_HOME = '/usr/lib/jvm/java-1.17.0-openjdk-amd64'

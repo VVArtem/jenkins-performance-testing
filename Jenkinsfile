@@ -11,65 +11,56 @@ pipeline {
         string(name: 'LH_ITERATIONS', defaultValue: '1', description: 'Number of iterations in Lighthouse')
     }
 
+    environment {
+        TARGET_PROTOCOL = "http"
+        TARGET_HOST     = "127.0.0.1"
+        TARGET_PORT     = "80"
+        JM_PATH = "/opt/apache-jmeter-5.6.3/bin/jmeter"
+        JAVA_HOME = '/usr/lib/jvm/java-1.17.0-openjdk-amd64'
+        PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+        
+        REPORT_NAME = "build-${env.BUILD_NUMBER}"
+
+        BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}"
+    }
+
     stages {
         stage('JMeter Test') {
             when { expression { return params.RUN_JMETER } }
             steps {
                 dir('jmeter') {
-                    sh """
-                        rm -rf results/* reports/*
-                        mkdir -p results reports
-            
-                        /opt/apache-jmeter-5.6.3/bin/jmeter -n \
-                            -t scripts/Essentials.jmx \
-                            -l results/test_result.jtl \
-                            -Jusers=${params.USERS} \
-                            -Jduration=${params.DURATION} \
-                            -e -o reports
-                    """
+                    script {
+                        def jmeterReportName = "results_${env.REPORT_NAME}"
+                        sh """
+                            rm -rf results/* reports/*
+                            mkdir -p results reports
+                
+                            ${env.JM_PATH} -n \
+                                -t scripts/Essentials.jmx \
+                                -l results/${jmeterReportName}.jtl \
+                                -Jusers=${params.USERS} \
+                                -Jduration=${params.DURATION} \
+                                -Jprotocol=${env.TARGET_PROTOCOL} \
+                                -Jhost=${env.TARGET_HOST} \
+                                -Jport=${env.TARGET_PORT} \
+                                -e -o reports/${jmeterReportName}
+                        """
+                    }
                 }
             }
             post {
                 always {
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'jmeter/reports',
-                        reportFiles: 'index.html',
-                        reportName: 'JMeter Report'
-                    ])
-                }
-            }
-        }
-        
-        stage('Gatling Test') {
-            when { expression { return params.RUN_GATLING } }
-            environment {
-                JAVA_HOME = '/usr/lib/jvm/java-1.17.0-openjdk-amd64'
-                PATH = "${JAVA_HOME}/bin:${env.PATH}"
-            }
-            steps {
-                dir('gatling') {
-                    sh """
-                        mvn clean gatling:test \
-                            -Dgatling.simulationClass=simulation.Simulation1 \
-                            -Dusers=${params.USERS} \
-                            -Dduration=${params.DURATION} \
-                            -DloadType=closed
-                    """
-                }
-            }
-            post {
-                always {
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'gatling/target/gatling',
-                        reportFiles: '**/index.html',
-                        reportName: 'Gatling Report'
-                    ])
+                    script {
+                        def jmeterReportName = "results_${env.REPORT_NAME}"
+                        publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: "jmeter/reports/${jmeterReportName}",
+                            reportFiles: 'index.html',
+                            reportName: "JMeter Report ${env.BUILD_NUMBER}"
+                        ])
+                    }
                 }
             }
         }
@@ -80,13 +71,18 @@ pipeline {
                 dir('lighthouse') {
                     sh """
                         npm install puppeteer lighthouse csv-parse
-                        rm -f *.html
+                        rm -rf iteration-*
                     """
                     script {
                         int iterations = params.LH_ITERATIONS.toInteger()
                         for (int i = 1; i <= iterations; i++) {
+                            def lhReportFileName = "lh_report_${env.REPORT_NAME}_iter_${i}.html"
                             sh "mkdir -p iteration-${i}"
-                            withEnv(["REPORT_PATH=iteration-${i}/user-flow.report.html"]) {
+                            
+                            withEnv([
+                                "REPORT_PATH=iteration-${i}/${lhReportFileName}", 
+                                "TARGET_URL=${env.BASE_URL}"
+                            ]) {
                                 sh "node lighthouse-script.js"
                             }
                         }
@@ -100,9 +96,10 @@ pipeline {
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'lighthouse',
-                        reportFiles: '**/user-flow.report.html',
-                        reportName: 'Lighthouse Report'
+                        reportFiles: '**/lh_report_*.html',
+                        reportName: "Lighthouse Report ${env.BUILD_NUMBER}"
                     ])
+                    archiveArtifacts artifacts: 'lighthouse/**/*.html', allowEmptyArchive: true
                 }
             }
         }

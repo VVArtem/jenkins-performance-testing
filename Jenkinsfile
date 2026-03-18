@@ -78,11 +78,20 @@ pipeline {
             when { expression { return params.RUN_LIGHTHOUSE } }
             steps {
                 dir('lighthouse') {
-                    // sh 'npm install puppeteer lighthouse csv-parse'
                     sh """
+                        npm install puppeteer lighthouse csv-parse
                         rm -f *.html
-                        node lighthouse-script.js
                     """
+                    script {
+                        int iterations = params.LH_ITERATIONS.toInteger()
+                        for (int i = 1; i <= iterations; i++) {
+                            echo "Starting iteration ${i} of ${iterations}"
+                            
+                            withEnv(["ITERATION=${i}"]) {
+                                sh "node lighthouse-script.js"
+                            }
+                        }
+                    }
                 }
             }
             post {

@@ -31,7 +31,7 @@ pipeline {
             agent {
                 docker {
                     image 'justb4/jmeter:5.5'
-                    args "--network ${env.DOCKER_NETWORK} -u root"
+                    args "--network ${env.DOCKER_NETWORK} --entrypoint='' -u root"
                 }
             }
             steps {
@@ -112,7 +112,7 @@ pipeline {
             agent {
                 docker {
                     image 'femtopixel/google-lighthouse'
-                    args "--network ${env.DOCKER_NETWORK} --entrypoint=''"
+                    args "--network ${env.DOCKER_NETWORK} --entrypoint='' -u root"
                 }
             }
             steps {

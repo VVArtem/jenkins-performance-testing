@@ -13,10 +13,10 @@ pipeline {
 
     environment {
         TARGET_PROTOCOL = "http"
-        TARGET_HOST     = "172.19.0.3"
+        TARGET_HOST     = "wp"
         TARGET_PORT     = "80"
 
-        BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}"
+        BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}/"
         
         REPORT_NAME = "build-${env.BUILD_NUMBER}"
 
@@ -34,12 +34,6 @@ pipeline {
             }
             steps {
                 dir('jmeter') {
-                    sh """
-            apk add --no-cache curl
-            echo "--- JMeter Network Check ---"
-            curl -I ${env.BASE_URL} || echo "CURL FAILED"
-            ping -c 2 ${env.TARGET_HOST}
-        """
                     script {
                         def jmeterReportName = "results_${env.REPORT_NAME}"
                         sh """

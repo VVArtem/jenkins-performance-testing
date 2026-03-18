@@ -37,6 +37,12 @@ pipeline {
                     script {
                         def jmeterReportName = "results_${env.REPORT_NAME}"
                         sh """
+    echo "--- CHECKING NETWORK ---"
+    ping -c 2 wp || echo "PING FAILED"
+    # Перевіримо, чи відповідає сервер на 80 порту
+    nc -zv wp 80 || echo "PORT 80 IS CLOSED"
+"""
+                        sh """
                             rm -rf results/* reports/*
                             mkdir -p results reports
                 
@@ -75,6 +81,12 @@ pipeline {
             steps {
                 dir('gatling') {
                     sh """
+    echo "--- CHECKING NETWORK ---"
+    ping -c 2 wp || echo "PING FAILED"
+    # Перевіримо, чи відповідає сервер на 80 порту
+    nc -zv wp 80 || echo "PORT 80 IS CLOSED"
+"""
+                    sh """
                         mvn clean gatling:test \
                             -Dmaven.repo.local=.m2/repository \
                             -Dgatling.simulationClass=simulation.Simulation1 \
@@ -103,6 +115,12 @@ pipeline {
             when { expression { return params.RUN_LIGHTHOUSE } }
             steps {
                 dir('lighthouse') {
+                    sh """
+    echo "--- CHECKING NETWORK ---"
+    ping -c 2 wp || echo "PING FAILED"
+    # Перевіримо, чи відповідає сервер на 80 порту
+    nc -zv wp 80 || echo "PORT 80 IS CLOSED"
+"""
                     sh """
                         npm install puppeteer lighthouse csv-parse
                         rm -rf iteration-*

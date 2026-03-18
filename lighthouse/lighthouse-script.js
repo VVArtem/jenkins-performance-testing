@@ -112,17 +112,11 @@ async function captureReport() {
         await page.screenshot({ path: 'error.png', fullPage: true });
     }
 
-
-    const iteration = process.env.ITERATION || '1';
-    const reportPath = __dirname + `user-flow-${iteration}.report.html`; //folder for html report
-    const reportPathJson = __dirname + '/user-flow.report.json'; //folder for json report
+    const reportPath = process.env.REPORT_PATH || 'user-flow.report.html';    
 
     const report = await flow.generateReport();
-    const flowResult = await flow.createFlowResult();
-    const reportJson = JSON.stringify(flowResult).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 
     fs.writeFileSync(reportPath, report); //write html report
-    // fs.writeFileSync(reportPathJson, reportJson); //write json report
 
     await browser.close();
 }

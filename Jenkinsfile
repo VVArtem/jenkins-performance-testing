@@ -85,9 +85,8 @@ pipeline {
                     script {
                         int iterations = params.LH_ITERATIONS.toInteger()
                         for (int i = 1; i <= iterations; i++) {
-                            echo "Starting iteration ${i} of ${iterations}"
-                            
-                            withEnv(["ITERATION=${i}"]) {
+                            sh "mkdir -p iteration-${i}"
+                            withEnv(["REPORT_PATH=iteration-${i}/user-flow.report.html"]) {
                                 sh "node lighthouse-script.js"
                             }
                         }

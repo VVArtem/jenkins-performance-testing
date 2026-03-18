@@ -76,6 +76,7 @@ pipeline {
                 dir('gatling') {
                     sh """
                         mvn clean gatling:test \
+                            -Dmaven.repo.local=.m2/repository \
                             -Dgatling.simulationClass=simulation.Simulation1 \
                             -Dusers=${params.USERS} \
                             -Dduration=${params.DURATION} \

@@ -93,6 +93,9 @@ pipeline {
                         reportFiles: '**/index.html',
                         reportName: 'Gatling Report'
                     ])
+                }
+            }
+        }
         
         stage('Lighthouse Test') {
             when { expression { return params.RUN_LIGHTHOUSE } }

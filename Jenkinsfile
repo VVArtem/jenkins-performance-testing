@@ -1,11 +1,5 @@
 pipeline {
-    agent {
-        dockerfile {
-            filename 'Dockerfile'
-
-            args '--network pte-network'
-        }
-    }
+    agent none
     
     parameters {
         booleanParam(name: 'RUN_JMETER', defaultValue: true, description: 'Run JMeter test?')
@@ -28,12 +22,18 @@ pipeline {
 
         BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}"
 
-        _JAVA_OPTIONS = "-Djava.net.preferIPv4Stack=true"
+        DOCKER_NETWORK = "pte-network"
     }
 
     stages {
         stage('JMeter Test') {
             when { expression { return params.RUN_JMETER } }
+            agent {
+                docker {
+                    image 'justb4/jmeter:5.5'
+                    args "--network ${env.DOCKER_NETWORK} -u root"
+                }
+            }
             steps {
                 dir('jmeter') {
                     script {
@@ -42,7 +42,7 @@ pipeline {
                             rm -rf results/* reports/*
                             mkdir -p results reports
                 
-                            ${env.JM_PATH} -n \
+                            entrypoint.sh -n \
                                 -t scripts/Essentials.jmx \
                                 -l results/${jmeterReportName}.jtl \
                                 -Jusers=${params.USERS} \
@@ -74,6 +74,12 @@ pipeline {
 
         stage('Gatling Test') {
             when { expression { return params.RUN_GATLING } }
+            agent {
+                docker {
+                    image 'maven:3.9-eclipse-temurin-17-alpine'
+                    args "--network ${env.DOCKER_NETWORK} -v /home/artem/.m2:/var/empty/.m2:rw"
+                }
+            }
             steps {
                 dir('gatling') {
                     sh """
@@ -103,6 +109,12 @@ pipeline {
         
         stage('Lighthouse Test') {
             when { expression { return params.RUN_LIGHTHOUSE } }
+            agent {
+                docker {
+                    image 'femtopixel/google-lighthouse'
+                    args "--network ${env.DOCKER_NETWORK} --entrypoint=''"
+                }
+            }
             steps {
                 dir('lighthouse') {
                     sh """

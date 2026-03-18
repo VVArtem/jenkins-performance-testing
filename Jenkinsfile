@@ -74,7 +74,7 @@ pipeline {
             }
         }
         
-        stage('Lighthouse Audit') {
+        stage('Lighthouse Test') {
             when { expression { return params.RUN_LIGHTHOUSE } }
             steps {
                 dir('lighthouse') {
@@ -96,12 +96,14 @@ pipeline {
             }
             post {
                 always {
+                    archiveArtifacts artifacts: 'lighthouse/*.html', fingerprint: true
+
                     publishHTML([
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'lighthouse',
-                        reportFiles: 'user-flow.report.html',
+                        reportFiles: 'user-flow-1.report.html',
                         reportName: 'Lighthouse Report'
                     ])
                 }

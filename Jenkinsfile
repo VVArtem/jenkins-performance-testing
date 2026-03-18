@@ -96,14 +96,12 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: '*.html', fingerprint: true
-
                     publishHTML([
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'lighthouse',
-                        reportFiles: 'user-flow-1.report.html',
+                        reportFiles: '*.html',
                         reportName: 'Lighthouse Report'
                     ])
                 }

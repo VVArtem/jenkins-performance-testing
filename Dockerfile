@@ -11,18 +11,21 @@ RUN apk add --no-cache \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
-    curl
+    curl \
+    libc6-compat \
+    gcompat
 
-# Install lighthouse
-RUN npm install -g lighthouse
+RUN npm install -g lighthouse puppeteer csv-parse
 
-# Install JMeter
+ENV CHROME_BIN=/usr/bin/chromium-browser \
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    JAVA_HOME="/usr/lib/jvm/default-jvm" \
+    _JAVA_OPTIONS="-Djava.net.preferIPv4Stack=true"
+
 RUN curl -L https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz > /tmp/jmeter.tgz && \
     tar -xf /tmp/jmeter.tgz -C /opt && \
     rm /tmp/jmeter.tgz
 
-# Додаємо JMeter у PATH
 ENV PATH="$PATH:/opt/apache-jmeter-5.6.3/bin"
-ENV JAVA_HOME="/usr/lib/jvm/default-jvm"
 
 WORKDIR /app

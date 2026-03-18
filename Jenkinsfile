@@ -35,7 +35,6 @@ pipeline {
         stage('JMeter Test') {
             when { expression { return params.RUN_JMETER } }
             steps {
-                sh "java -e 'System.out.println(java.net.InetAddress.getByName(\"wp\"));'"
                 dir('jmeter') {
                     script {
                         def jmeterReportName = "results_${env.REPORT_NAME}"

@@ -1,0 +1,6 @@
+gatling/target/
+
+jmeter/reports/
+jmeter/results/
+
+lighthouse/node_modules/

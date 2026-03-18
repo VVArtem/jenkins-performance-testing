@@ -99,7 +99,7 @@ pipeline {
                         keepAll: true,
                         reportDir: 'gatling/target/gatling',
                         reportFiles: '**/index.html',
-                        reportName: 'Gatling Report'
+                        reportName: "Gatling Report ${env.BUILD_NUMBER}"
                     ])
                 }
             }

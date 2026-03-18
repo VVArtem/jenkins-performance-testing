@@ -21,9 +21,8 @@ pipeline {
         TARGET_PROTOCOL = "http"
         TARGET_HOST     = "host.docker.internal"
         TARGET_PORT     = "80"
-        JM_PATH = "/opt/apache-jmeter-5.6.3/bin/jmeter"
-        JAVA_HOME = '/usr/lib/jvm/java-1.17.0-openjdk-amd64'
-        PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+
+        JM_PATH = "jmeter"
         
         REPORT_NAME = "build-${env.BUILD_NUMBER}"
 

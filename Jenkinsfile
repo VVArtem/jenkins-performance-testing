@@ -96,7 +96,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'lighthouse/*.html', fingerprint: true
+                    archiveArtifacts artifacts: '*.html', fingerprint: true
 
                     publishHTML([
                         allowMissing: false,

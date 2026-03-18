@@ -100,7 +100,7 @@ pipeline {
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'lighthouse',
-                        reportFiles: '*.html',
+                        reportFiles: '**/user-flow.report.html',
                         reportName: 'Lighthouse Report'
                     ])
                 }

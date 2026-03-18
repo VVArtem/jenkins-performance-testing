@@ -3,7 +3,7 @@ pipeline {
         dockerfile {
             filename 'Dockerfile'
 
-            args '--shm-size=2g --add-host=host.docker.internal:host-gateway'
+            args '--network pte-network'
         }
     }
     
@@ -19,7 +19,7 @@ pipeline {
 
     environment {
         TARGET_PROTOCOL = "http"
-        TARGET_HOST     = "host.docker.internal"
+        TARGET_HOST     = "wp"
         TARGET_PORT     = "80"
 
         JM_PATH = "jmeter"

@@ -26,17 +26,10 @@ pipeline {
         
         REPORT_NAME = "build-${env.BUILD_NUMBER}"
 
-        BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}"
+        BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}:${env.TARGET_PORT}"
     }
 
     stages {
-        stage('Pre-flight Check') {
-            steps {
-                sh "ping -c 2 ${env.TARGET_HOST}"
-                sh "curl -I ${env.BASE_URL}"
-            }
-        }
-
         stage('JMeter Test') {
             when { expression { return params.RUN_JMETER } }
             steps {

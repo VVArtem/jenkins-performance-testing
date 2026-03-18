@@ -16,11 +16,9 @@ pipeline {
         TARGET_HOST     = "wp"
         TARGET_PORT     = "80"
 
-        JM_PATH = "jmeter"
+        BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}"
         
         REPORT_NAME = "build-${env.BUILD_NUMBER}"
-
-        BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}"
 
         DOCKER_NETWORK = "pte-network"
     }
@@ -36,6 +34,12 @@ pipeline {
             }
             steps {
                 dir('jmeter') {
+                    sh """
+            apk add --no-cache curl
+            echo "--- JMeter Network Check ---"
+            curl -I ${env.BASE_URL} || echo "CURL FAILED"
+            ping -c 2 ${env.TARGET_HOST}
+        """
                     script {
                         def jmeterReportName = "results_${env.REPORT_NAME}"
                         sh """

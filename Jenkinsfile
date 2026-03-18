@@ -13,7 +13,7 @@ pipeline {
 
     environment {
         TARGET_PROTOCOL = "http"
-        TARGET_HOST     = "wp"
+        TARGET_HOST     = "172.19.0.3"
         TARGET_PORT     = "80"
 
         BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}"

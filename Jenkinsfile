@@ -1,3 +1,8 @@
+def getTimestamp() 
+{
+    return new Date().format('yyyy-MM-dd_HH-mm', TimeZone.getTimeZone('UTC'))
+}
+
 pipeline 
 {
     agent none
@@ -22,7 +27,7 @@ pipeline
     {
         BASE_URL = "${params.TARGET_PROTOCOL}://${params.TARGET_HOST}/"
         
-        REPORT_NAME = "build-${env.BUILD_NUMBER}"
+        REPORT_NAME = "build-${env.BUILD_NUMBER}_${env.REPORT_TIMESTAMP}"
     }
 
     stages 
@@ -134,7 +139,7 @@ pipeline
                 docker 
                 {
                     image 'femtopixel/google-lighthouse'
-                    args "--network ${params.DOCKER_NETWORK} --entrypoint='' -v npm-cache:/root/.npm"
+                    args "--network ${params.DOCKER_NETWORK} --entrypoint='' -e HOME=/tmp -v npm-cache:/tmp/.npm"
                 }
             }
 
@@ -143,7 +148,7 @@ pipeline
                 dir('lighthouse') 
                 {
                     echo "LIGHTHOUSE: Installing dependencies"
-                    sh "npm install puppeteer lighthouse csv-parse"
+                    sh "npm install puppeteer lighthouse csv-parse --cache /tmp/.npm --prefer-offline"
 
                     echo "LIGHTHOUSE: Cleaning old reports"
                     sh "rm -rf iteration-*"

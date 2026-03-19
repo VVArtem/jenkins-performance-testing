@@ -82,7 +82,7 @@ pipeline
                             keepAll: true,
                             reportDir: "jmeter/reports/${jmeterReportName}",
                             reportFiles: 'index.html',
-                            reportName: "JMeter Report ${env.BUILD_NUMBER}"
+                            reportName: "JMeter Report ${env.REPORT_NAME}"
                         ])
                     }
                 }
@@ -126,7 +126,7 @@ pipeline
                         keepAll: true,
                         reportDir: 'gatling/target/gatling',
                         reportFiles: '**/index.html',
-                        reportName: "Gatling Report ${env.BUILD_NUMBER}"
+                        reportName: "Gatling Report ${env.REPORT_NAME}"
                     ])
                 }
             }
@@ -187,7 +187,7 @@ pipeline
                         keepAll: true,
                         reportDir: 'lighthouse',
                         reportFiles: '**/lh_report_*.html',
-                        reportName: "Lighthouse Report ${env.BUILD_NUMBER}"
+                        reportName: "Lighthouse Report ${env.REPORT_NAME}"
                     ])
                     archiveArtifacts artifacts: 'lighthouse/**/*.html', allowEmptyArchive: true
                 }

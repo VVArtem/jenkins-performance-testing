@@ -159,8 +159,7 @@ pipeline
                             def lhReportFileName = "lh_report_${env.REPORT_NAME}_iter_${i}.html"
                             sh "mkdir -p iteration-${i}"
                             
-                            withEnv
-                            ([
+                            withEnv([
                                 "REPORT_PATH=iteration-${i}/${lhReportFileName}", 
                                 "TARGET_URL=${env.BASE_URL}"
                             ]) 

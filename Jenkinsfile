@@ -139,7 +139,7 @@ pipeline
                 docker 
                 {
                     image 'femtopixel/google-lighthouse'
-                    args "--network ${params.DOCKER_NETWORK} --entrypoint='' -e HOME=/tmp -v npm-cache:/tmp/.npm"
+                    args "--network ${params.DOCKER_NETWORK} --entrypoint='' -e HOME=/tmp -v"
                 }
             }
 
@@ -148,7 +148,7 @@ pipeline
                 dir('lighthouse') 
                 {
                     echo "LIGHTHOUSE: Installing dependencies"
-                    sh "npm install puppeteer lighthouse csv-parse --cache /tmp/.npm --prefer-offline"
+                    sh "npm install puppeteer lighthouse csv-parse --no-cache"
 
                     echo "LIGHTHOUSE: Cleaning old reports"
                     sh "rm -rf iteration-*"

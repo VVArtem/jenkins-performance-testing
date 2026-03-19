@@ -139,7 +139,7 @@ pipeline
                 docker 
                 {
                     image 'femtopixel/google-lighthouse'
-                    args "--network ${params.DOCKER_NETWORK} --entrypoint='' -e HOME=/tmp -v"
+                    args "--network ${params.DOCKER_NETWORK} --entrypoint='' -e HOME=/tmp"
                 }
             }
 

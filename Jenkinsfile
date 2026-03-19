@@ -35,7 +35,7 @@ pipeline
                 docker 
                 {
                     image 'justb4/jmeter:5.5'
-                    args "--network ${params.DOCKER_NETWORK} --entrypoint='' -u root"
+                    args "--network ${params.DOCKER_NETWORK} --entrypoint=''"
                 }
             }
             steps 
@@ -134,7 +134,7 @@ pipeline
                 docker 
                 {
                     image 'femtopixel/google-lighthouse'
-                    args "--network ${params.DOCKER_NETWORK} --entrypoint='' -u root -v npm-cache:/root/.npm"
+                    args "--network ${params.DOCKER_NETWORK} --entrypoint='' -v npm-cache:/root/.npm"
                 }
             }
 

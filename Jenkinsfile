@@ -20,7 +20,7 @@ pipeline
 
     environment 
     {
-        BASE_URL = "${params.TARGET_PROTOCOL}://${env.TARGET_HOST}/"
+        BASE_URL = "${params.TARGET_PROTOCOL}://${params.TARGET_HOST}/"
         
         REPORT_NAME = "build-${env.BUILD_NUMBER}"
     }
@@ -70,8 +70,7 @@ pipeline
                     script 
                     {
                         def jmeterReportName = "results_${env.REPORT_NAME}"
-                        publishHTML
-                        ([
+                        publishHTML([
                             allowMissing: false,
                             alwaysLinkToLastBuild: true,
                             keepAll: true,
@@ -92,7 +91,7 @@ pipeline
                 docker 
                 {
                     image 'maven:3.9-eclipse-temurin-17-alpine'
-                    args "--network ${params.DOCKER_NETWORK} -v maven-cache:/var/empty/.m2"
+                    args "--network ${params.DOCKER_NETWORK} -v maven-cache:/root/.m2"
                 }
             }
             steps 
@@ -115,8 +114,7 @@ pipeline
             {
                 always 
                 {
-                    publishHTML
-                    ([
+                    publishHTML([
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
@@ -178,8 +176,7 @@ pipeline
             {
                 always 
                 {
-                    publishHTML
-                    ([
+                    publishHTML([
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,

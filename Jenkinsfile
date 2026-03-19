@@ -27,6 +27,7 @@ pipeline
     {
         BASE_URL = "${params.TARGET_PROTOCOL}://${params.TARGET_HOST}/"
         
+        REPORT_TIMESTAMP = "${getTimestamp()}"
         REPORT_NAME = "build-${env.BUILD_NUMBER}_${env.REPORT_TIMESTAMP}"
     }
 

@@ -1,6 +1,6 @@
 def getTimestamp() 
 {
-    return new Date().format('yyyy-MM-dd_HH-mm', TimeZone.getTimeZone('UTC'))
+    return new Date().format('dd-MM-yyyy_HH-mm', TimeZone.getTimeZone('UTC'))
 }
 
 pipeline 

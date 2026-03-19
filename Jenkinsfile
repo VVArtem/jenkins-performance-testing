@@ -1,7 +1,9 @@
-pipeline {
+pipeline 
+{
     agent none
     
-    parameters {
+    parameters 
+    {
         booleanParam(name: 'RUN_JMETER', defaultValue: true, description: 'Run JMeter test?')
         booleanParam(name: 'RUN_GATLING', defaultValue: true, description: 'Run Gatling test?')
         booleanParam(name: 'RUN_LIGHTHOUSE', defaultValue: true, description: 'Run Lighthouse test?')
@@ -9,55 +11,67 @@ pipeline {
         string(name: 'USERS', defaultValue: '5', description: 'Amount of virtual users')
         string(name: 'DURATION', defaultValue: '60', description: 'Backend test duration')
         string(name: 'LH_ITERATIONS', defaultValue: '1', description: 'Number of iterations in Lighthouse')
+
+        choice(name: 'TARGET_PROTOCOL', choices: ['http', 'https'], description: 'Protocol to use')
+        string(name: 'TARGET_HOST', defaultValue: '127.0.0.1', description: 'Target server hostname or IP')
+        string(name: 'TARGET_PORT', defaultValue: '80', description: 'Target server port')
+        choice(name: 'DOCKER_NETWORK', choices: ['host', 'pte-network', 'bridge'], description: 'Docker network mode')
     }
 
-    environment {
-        TARGET_PROTOCOL = "http"
-        TARGET_HOST     = "127.0.0.1"
-        TARGET_PORT     = "80"
-
-        BASE_URL = "${env.TARGET_PROTOCOL}://${env.TARGET_HOST}/"
+    environment 
+    {
+        BASE_URL = "${params.TARGET_PROTOCOL}://${env.TARGET_HOST}/"
         
         REPORT_NAME = "build-${env.BUILD_NUMBER}"
-
-        DOCKER_NETWORK = "host"
     }
 
-    stages {
-        stage('JMeter Test') {
+    stages 
+    {
+        stage('JMeter Test') 
+        {
             when { expression { return params.RUN_JMETER } }
-            agent {
-                docker {
+            agent 
+            {
+                docker 
+                {
                     image 'justb4/jmeter:5.5'
-                    args "--network ${env.DOCKER_NETWORK} --entrypoint='' -u root"
+                    args "--network ${params.DOCKER_NETWORK} --entrypoint='' -u root"
                 }
             }
-            steps {
-                dir('jmeter') {
-                    script {
+            steps 
+            {
+                dir('jmeter') 
+                {
+                    echo "JMETER: Preparing directories"
+                    sh "rm -rf results/* reports/* && mkdir -p results reports"
+
+                    echo "JMETER: Running simulation (Target: ${env.BASE_URL})"
+                    script 
+                    {
                         def jmeterReportName = "results_${env.REPORT_NAME}"
                         sh """
-                            rm -rf results/* reports/*
-                            mkdir -p results reports
-                
                             jmeter -n \
                                 -t scripts/Essentials.jmx \
                                 -l results/${jmeterReportName}.jtl \
                                 -Jusers=${params.USERS} \
                                 -Jduration=${params.DURATION} \
-                                -Jprotocol=${env.TARGET_PROTOCOL} \
-                                -Jhost=${env.TARGET_HOST} \
-                                -Jport=${env.TARGET_PORT} \
+                                -Jprotocol=${params.TARGET_PROTOCOL} \
+                                -Jhost=${params.TARGET_HOST} \
+                                -Jport=${params.TARGET_PORT} \
                                 -e -o reports/${jmeterReportName}
                         """
                     }
                 }
             }
-            post {
-                always {
-                    script {
+            post 
+            {
+                always 
+                {
+                    script 
+                    {
                         def jmeterReportName = "results_${env.REPORT_NAME}"
-                        publishHTML([
+                        publishHTML
+                        ([
                             allowMissing: false,
                             alwaysLinkToLastBuild: true,
                             keepAll: true,
@@ -70,16 +84,22 @@ pipeline {
             }
         }
 
-        stage('Gatling Test') {
+        stage('Gatling Test') 
+        {
             when { expression { return params.RUN_GATLING } }
-            agent {
-                docker {
+            agent 
+            {
+                docker 
+                {
                     image 'maven:3.9-eclipse-temurin-17-alpine'
-                    args "--network ${env.DOCKER_NETWORK} -v /home/artem/.m2:/var/empty/.m2:rw"
+                    args "--network ${params.DOCKER_NETWORK} -v maven-cache:/var/empty/.m2"
                 }
             }
-            steps {
-                dir('gatling') {
+            steps 
+            {
+                dir('gatling') 
+                {
+                    echo "GATLING: Running simulation (Target: ${env.BASE_URL})"
                     sh """
                         mvn clean gatling:test \
                             -Dmaven.repo.local=.m2/repository \
@@ -91,9 +111,12 @@ pipeline {
                     """
                 }
             }
-            post {
-                always {
-                    publishHTML([
+            post 
+            {
+                always 
+                {
+                    publishHTML
+                    ([
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
@@ -105,39 +128,58 @@ pipeline {
             }
         }
         
-        stage('Lighthouse Test') {
+        stage('Lighthouse Test') 
+        {
             when { expression { return params.RUN_LIGHTHOUSE } }
-            agent {
-                docker {
+            agent 
+            {
+                docker 
+                {
                     image 'femtopixel/google-lighthouse'
-                    args "--network ${env.DOCKER_NETWORK} --entrypoint='' -u root"
+                    args "--network ${params.DOCKER_NETWORK} --entrypoint='' -u root -v npm-cache:/root/.npm"
                 }
             }
-            steps {
-                dir('lighthouse') {
-                    sh """
-                        npm install puppeteer lighthouse csv-parse
-                        rm -rf iteration-*
-                    """
-                    script {
+
+            steps 
+            {
+                dir('lighthouse') 
+                {
+                    echo "LIGHTHOUSE: Installing dependencies"
+                    sh "npm install puppeteer lighthouse csv-parse"
+
+                    echo "LIGHTHOUSE: Cleaning old reports"
+                    sh "rm -rf iteration-*"
+
+                    echo "LIGHTHOUSE: Running iterations"
+                    script 
+                    {
                         int iterations = params.LH_ITERATIONS.toInteger()
-                        for (int i = 1; i <= iterations; i++) {
+
+                        for (int i = 1; i <= iterations; i++) 
+                        {
+
                             def lhReportFileName = "lh_report_${env.REPORT_NAME}_iter_${i}.html"
                             sh "mkdir -p iteration-${i}"
                             
-                            withEnv([
+                            withEnv
+                            ([
                                 "REPORT_PATH=iteration-${i}/${lhReportFileName}", 
                                 "TARGET_URL=${env.BASE_URL}"
-                            ]) {
+                            ]) 
+                            {
                                 sh "node lighthouse-script.js"
                             }
                         }
                     }
                 }
             }
-            post {
-                always {
-                    publishHTML([
+
+            post 
+            {
+                always 
+                {
+                    publishHTML
+                    ([
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,

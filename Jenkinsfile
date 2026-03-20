@@ -33,6 +33,13 @@ pipeline
 
     stages 
     {
+        stage('Checkout Git') {
+            agent any
+            steps {
+                git branch: 'main', url: 'https://github.com/VVArtem/jenkins-performance-testing.git'            
+            }
+        }
+
         stage('JMeter Test') 
         {
             when { expression { return params.RUN_JMETER } }

@@ -78,7 +78,7 @@ pipeline
                     }
 
                     echo "JMETER: Archiving report"
-                    sh "tar -czf jmeter-report-${env.REPORT_NAME}.tar.gz -C reports"
+                    sh "tar -czf jmeter-report-${env.REPORT_NAME}.tar.gz -C reports/results_${env.REPORT_NAME} ."
                 }
             }
             post 
@@ -130,7 +130,7 @@ pipeline
                     """
 
                     echo "GATLING: Archiving reports"
-                    sh "tar -czf gatling-report-${env.REPORT_NAME}.tar.gz -C target/gatling"
+                    sh "tar -czf gatling-report-${env.REPORT_NAME}.tar.gz -C target/gatling ."
                 }
             }
             post 

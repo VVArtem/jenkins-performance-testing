@@ -25,8 +25,11 @@ pipeline
 
     environment 
     {
+        GIT_REPO = "https://github.com/VVArtem/jenkins-performance-testing.git"
+        GIT_BRANCH = "main"
+
         BASE_URL = "${params.TARGET_PROTOCOL}://${params.TARGET_HOST}/"
-        
+
         REPORT_TIMESTAMP = "${getTimestamp()}"
         REPORT_NAME = "build-${env.BUILD_NUMBER}_${env.REPORT_TIMESTAMP}"
     }
@@ -36,7 +39,7 @@ pipeline
         stage('Checkout Git') {
             agent any
             steps {
-                git branch: 'main', url: 'https://github.com/VVArtem/jenkins-performance-testing.git'            
+                git branch: "${env.GIT_BRANCH}", url: "${env.GIT_REPO}"            
             }
         }
 

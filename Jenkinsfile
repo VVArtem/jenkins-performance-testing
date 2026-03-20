@@ -58,7 +58,9 @@ pipeline
                 dir('jmeter') 
                 {
                     echo "JMETER: Preparing directories"
-                    sh "rm -rf results/* reports/* && mkdir -p results reports"
+                    sh "rm -rf results/* reports/* *.tar.gz"
+                    sh "mkdir -p results reports"
+
 
                     echo "JMETER: Running simulation (Target: ${env.BASE_URL})"
                     script 
@@ -77,10 +79,12 @@ pipeline
                         """
                     }
 
+
                     echo "JMETER: Archiving report"
                     sh "tar -czf jmeter-report-${env.REPORT_NAME}.tar.gz -C reports/results_${env.REPORT_NAME} ."
                 }
             }
+
             post 
             {
                 always 
@@ -118,6 +122,10 @@ pipeline
             {
                 dir('gatling') 
                 {
+                    echo "GATLING: Clear previous archives"
+                    sh "rm -rf *.tar.gz"
+
+
                     echo "GATLING: Running simulation (Target: ${env.BASE_URL})"
                     sh """
                         mvn clean gatling:test \
@@ -129,10 +137,12 @@ pipeline
                             -DloadType=closed
                     """
 
+
                     echo "GATLING: Archiving reports"
                     sh "tar -czf gatling-report-${env.REPORT_NAME}.tar.gz -C target/gatling ."
                 }
             }
+
             post 
             {
                 always 
@@ -170,8 +180,11 @@ pipeline
                     echo "LIGHTHOUSE: Installing dependencies"
                     sh "npm install puppeteer lighthouse csv-parse --no-cache"
 
+
                     echo "LIGHTHOUSE: Cleaning old reports"
                     sh "rm -rf iteration-*"
+                    sh "rm -rf reports *.tar.gz && mkdir -p reports"
+
 
                     echo "LIGHTHOUSE: Running iterations"
                     script 
@@ -182,10 +195,9 @@ pipeline
                         {
 
                             def lhReportFileName = "lh_report_${env.REPORT_NAME}_iter_${i}.html"
-                            sh "mkdir -p iteration-${i}"
                             
                             withEnv([
-                                "REPORT_PATH=iteration-${i}/${lhReportFileName}", 
+                                "REPORT_PATH=reports/${lhReportFileName}", 
                                 "TARGET_URL=${env.BASE_URL}"
                             ]) 
                             {
@@ -193,6 +205,9 @@ pipeline
                             }
                         }
                     }
+
+                    echo "LIGHTHOUSE: Archiving reports"
+                    sh "tar -czf gatling-report-${env.REPORT_NAME}.tar.gz -C target/gatling ."
                 }
             }
 
@@ -208,7 +223,7 @@ pipeline
                         reportFiles: '**/lh_report_*.html',
                         reportName: "Lighthouse Report ${env.REPORT_NAME}"
                     ])
-                    archiveArtifacts artifacts: 'lighthouse/iteration-*/*.html', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'lighthouse/*.tar.gz', allowEmptyArchive: true
                 }
             }
         }

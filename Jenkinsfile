@@ -78,7 +78,7 @@ pipeline
                     }
 
                     echo "JMETER: Archiving report"
-                    sh "tar -czf jmeter-report-${env.REPORT_NAME}.tar.gz -C reports/results_${env.REPORT_NAME}"
+                    sh "tar -czf jmeter-report-${env.REPORT_NAME}.tar.gz -C reports"
                 }
             }
             post 

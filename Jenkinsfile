@@ -76,6 +76,9 @@ pipeline
                                 -e -o reports/${jmeterReportName}
                         """
                     }
+
+                    echo "JMETER: Archiving report"
+                    sh "tar -czf jmeter-report-${env.REPORT_NAME}.tar.gz reports/${jmeterReportName}"
                 }
             }
             post 
@@ -93,6 +96,8 @@ pipeline
                             reportFiles: 'index.html',
                             reportName: "JMeter Report ${env.REPORT_NAME}"
                         ])
+
+                        archiveArtifacts artifacts: 'jmeter/*.tar.gz', allowEmptyArchive: true
                     }
                 }
             }
@@ -123,6 +128,9 @@ pipeline
                             -DappBaseUrl=${env.BASE_URL} \
                             -DloadType=closed
                     """
+
+                    echo "GATLING: Archiving reports"
+                    sh "tar -czf gatling-report-${env.REPORT_NAME}.tar.gz target/gatling"
                 }
             }
             post 
@@ -137,6 +145,8 @@ pipeline
                         reportFiles: '**/index.html',
                         reportName: "Gatling Report ${env.REPORT_NAME}"
                     ])
+
+                    archiveArtifacts artifacts: 'gatling/*.tar.gz', allowEmptyArchive: true
                 }
             }
         }
@@ -198,7 +208,7 @@ pipeline
                         reportFiles: '**/lh_report_*.html',
                         reportName: "Lighthouse Report ${env.REPORT_NAME}"
                     ])
-                    archiveArtifacts artifacts: 'lighthouse/**/*.html', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'lighthouse/iteration-*/*.html', allowEmptyArchive: true
                 }
             }
         }

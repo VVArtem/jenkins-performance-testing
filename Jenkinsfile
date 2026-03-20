@@ -182,7 +182,6 @@ pipeline
 
 
                     echo "LIGHTHOUSE: Cleaning old reports"
-                    sh "rm -rf iteration-*"
                     sh "rm -rf reports *.tar.gz && mkdir -p reports"
 
 
@@ -193,7 +192,7 @@ pipeline
 
                         for (int i = 1; i <= iterations; i++) 
                         {
-
+                            echo "LIGHTHOUSE: Running iteration ${i} of ${iterations}"
                             def lhReportFileName = "lh_report_${env.REPORT_NAME}_iter_${i}.html"
                             
                             withEnv([
@@ -207,7 +206,7 @@ pipeline
                     }
 
                     echo "LIGHTHOUSE: Archiving reports"
-                    sh "tar -czf gatling-report-${env.REPORT_NAME}.tar.gz -C target/gatling ."
+                    sh "tar -czf lighthouse-reports-${env.REPORT_NAME}.tar.gz -C reports ."
                 }
             }
 
@@ -220,7 +219,7 @@ pipeline
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'lighthouse',
-                        reportFiles: '**/lh_report_*.html',
+                        reportFiles: 'reports/lh_report_*.html',
                         reportName: "Lighthouse Report ${env.REPORT_NAME}"
                     ])
                     archiveArtifacts artifacts: 'lighthouse/*.tar.gz', allowEmptyArchive: true

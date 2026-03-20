@@ -26,7 +26,6 @@ pipeline
     environment 
     {
         GIT_REPO = "https://github.com/VVArtem/jenkins-performance-testing.git"
-        GIT_BRANCH = "main"
 
         BASE_URL = "${params.TARGET_PROTOCOL}://${params.TARGET_HOST}/"
 
@@ -39,7 +38,7 @@ pipeline
         stage('Checkout Git') {
             agent any
             steps {
-                git branch: "${env.GIT_BRANCH}", url: "${env.GIT_REPO}"            
+                git branch: 'main', url: "${env.GIT_REPO}"        
             }
         }
 
